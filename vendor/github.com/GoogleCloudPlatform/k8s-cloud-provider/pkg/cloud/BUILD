@@ -24,7 +24,7 @@ go_library(
         "//vendor/google.golang.org/api/compute/v0.beta:go_default_library",
         "//vendor/google.golang.org/api/compute/v1:go_default_library",
         "//vendor/google.golang.org/api/googleapi:go_default_library",
-        "//vendor/k8s.io/klog:go_default_library",
+        "//vendor/k8s.io/klog/v2:go_default_library",
     ],
 )
 
@@ -40,7 +40,6 @@ filegroup(
     srcs = [
         ":package-srcs",
         "//vendor/github.com/GoogleCloudPlatform/k8s-cloud-provider/pkg/cloud/filter:all-srcs",
-        "//vendor/github.com/GoogleCloudPlatform/k8s-cloud-provider/pkg/cloud/gen:all-srcs",
         "//vendor/github.com/GoogleCloudPlatform/k8s-cloud-provider/pkg/cloud/meta:all-srcs",
         "//vendor/github.com/GoogleCloudPlatform/k8s-cloud-provider/pkg/cloud/mock:all-srcs",
     ],

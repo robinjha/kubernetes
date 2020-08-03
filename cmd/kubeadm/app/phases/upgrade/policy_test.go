@@ -46,9 +46,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumControlPlaneVersion.WithPatch(2).String(),
-				kubeadmVersion: "v1.13.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPatch(1).String(),
 			},
-			newK8sVersion: "v1.13.0",
+			newK8sVersion: constants.CurrentKubernetesVersion.String(),
 		},
 		{
 			name: "downgrade",
@@ -69,14 +69,14 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			newK8sVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 		},
 		{
-			name: "new version must be higher than v1.10.0",
+			name: "new version must be higher than v1.12.0",
 			vg: &fakeVersionGetter{
-				clusterVersion: "v1.10.3",
-				kubeletVersion: "v1.10.3",
-				kubeadmVersion: "v1.10.3",
+				clusterVersion: "v1.12.3",
+				kubeletVersion: "v1.12.3",
+				kubeadmVersion: "v1.12.3",
 			},
-			newK8sVersion:         "v1.9.10",
-			expectedMandatoryErrs: 1, // version must be higher than v1.10.0
+			newK8sVersion:         "v1.11.10",
+			expectedMandatoryErrs: 1, // version must be higher than v1.12.0
 			expectedSkippableErrs: 1, // can't upgrade old k8s with newer kubeadm
 		},
 		{
@@ -84,22 +84,21 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: "v1.11.3",
 				kubeletVersion: "v1.11.3",
-				kubeadmVersion: "v1.13.0",
+				kubeadmVersion: constants.CurrentKubernetesVersion.String(),
 			},
-			newK8sVersion:         "v1.13.0",
+			newK8sVersion:         constants.CurrentKubernetesVersion.String(),
 			expectedMandatoryErrs: 1, // can't upgrade two minor versions
 			expectedSkippableErrs: 1, // kubelet <-> apiserver skew too large
 		},
 		{
 			name: "downgrading two minor versions in one go is not supported",
 			vg: &fakeVersionGetter{
-				clusterVersion: "v1.14.3",
-				kubeletVersion: "v1.14.3",
-				kubeadmVersion: "v1.14.0",
+				clusterVersion: constants.CurrentKubernetesVersion.WithMinor(constants.CurrentKubernetesVersion.Minor() + 2).String(),
+				kubeletVersion: constants.CurrentKubernetesVersion.WithMinor(constants.CurrentKubernetesVersion.Minor() + 2).String(),
+				kubeadmVersion: constants.CurrentKubernetesVersion.String(),
 			},
-			newK8sVersion:         constants.MinimumControlPlaneVersion.WithPatch(3).String(),
+			newK8sVersion:         constants.CurrentKubernetesVersion.String(),
 			expectedMandatoryErrs: 1, // can't downgrade two minor versions
-			expectedSkippableErrs: 1, // can't upgrade old k8s with newer kubeadm
 		},
 		{
 			name: "kubeadm version must be higher than the new kube version. However, patch version skews may be forced",
@@ -118,17 +117,17 @@ func TestEnforceVersionPolicies(t *testing.T) {
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
 				kubeadmVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 			},
-			newK8sVersion:         "v1.13.0",
+			newK8sVersion:         constants.CurrentKubernetesVersion.String(),
 			expectedMandatoryErrs: 1,
 		},
 		{
 			name: "the maximum skew between the cluster version and the kubelet versions should be one minor version. This may be forced through though.",
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
-				kubeletVersion: "v1.11.8",
-				kubeadmVersion: "v1.13.0",
+				kubeletVersion: "v1.12.8",
+				kubeadmVersion: constants.CurrentKubernetesVersion.String(),
 			},
-			newK8sVersion:         "v1.13.0",
+			newK8sVersion:         constants.CurrentKubernetesVersion.String(),
 			expectedSkippableErrs: 1,
 		},
 		{
@@ -136,9 +135,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0-beta.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPreRelease("beta.1").String(),
 			},
-			newK8sVersion:     "v1.13.0-beta.1",
+			newK8sVersion:     constants.CurrentKubernetesVersion.WithPreRelease("beta.1").String(),
 			allowExperimental: true,
 		},
 		{
@@ -146,9 +145,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0-rc.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			},
-			newK8sVersion: "v1.13.0-rc.1",
+			newK8sVersion: constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			allowRCs:      true,
 		},
 		{
@@ -156,9 +155,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0-rc.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			},
-			newK8sVersion:     "v1.13.0-rc.1",
+			newK8sVersion:     constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			allowExperimental: true,
 		},
 		{
@@ -166,9 +165,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0-beta.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPreRelease("beta.1").String(),
 			},
-			newK8sVersion:         "v1.13.0-beta.1",
+			newK8sVersion:         constants.CurrentKubernetesVersion.WithPreRelease("beta.1").String(),
 			allowRCs:              true,
 			expectedSkippableErrs: 1,
 		},
@@ -177,9 +176,9 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0-rc.1",
+				kubeadmVersion: constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			},
-			newK8sVersion:         "v1.13.0-rc.1",
+			newK8sVersion:         constants.CurrentKubernetesVersion.WithPreRelease("rc.1").String(),
 			expectedSkippableErrs: 1,
 		},
 		{
@@ -187,10 +186,19 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			vg: &fakeVersionGetter{
 				clusterVersion: constants.MinimumControlPlaneVersion.WithPatch(3).String(),
 				kubeletVersion: constants.MinimumKubeletVersion.WithPatch(3).String(),
-				kubeadmVersion: "v1.13.0",
+				kubeadmVersion: constants.CurrentKubernetesVersion.String(),
 			},
 			newK8sVersion:         constants.MinimumControlPlaneVersion.WithPatch(6).String(),
 			expectedSkippableErrs: 1, // can't upgrade old k8s with newer kubeadm
+		},
+		{
+			name: "build release supported at MinimumControlPlaneVersion",
+			vg: &fakeVersionGetter{
+				clusterVersion: constants.MinimumControlPlaneVersion.String(),
+				kubeletVersion: constants.MinimumControlPlaneVersion.String(),
+				kubeadmVersion: constants.MinimumControlPlaneVersion.WithBuildMetadata("build").String(),
+			},
+			newK8sVersion: constants.MinimumControlPlaneVersion.WithBuildMetadata("build").String(),
 		},
 	}
 
@@ -213,10 +221,10 @@ func TestEnforceVersionPolicies(t *testing.T) {
 			}
 
 			if len(actualSkewErrs.Skippable) != rt.expectedSkippableErrs {
-				t.Errorf("failed TestEnforceVersionPolicies\n\texpected skippable errors: %d\n\tgot skippable errors: %d %v", rt.expectedSkippableErrs, len(actualSkewErrs.Skippable), *rt.vg)
+				t.Errorf("failed TestEnforceVersionPolicies\n\texpected skippable errors: %d\n\tgot skippable errors: %d\n%#v\n%#v", rt.expectedSkippableErrs, len(actualSkewErrs.Skippable), *rt.vg, actualSkewErrs)
 			}
 			if len(actualSkewErrs.Mandatory) != rt.expectedMandatoryErrs {
-				t.Errorf("failed TestEnforceVersionPolicies\n\texpected mandatory errors: %d\n\tgot mandatory errors: %d %v", rt.expectedMandatoryErrs, len(actualSkewErrs.Mandatory), *rt.vg)
+				t.Errorf("failed TestEnforceVersionPolicies\n\texpected mandatory errors: %d\n\tgot mandatory errors: %d\n%#v\n%#v", rt.expectedMandatoryErrs, len(actualSkewErrs.Mandatory), *rt.vg, actualSkewErrs)
 			}
 		})
 	}

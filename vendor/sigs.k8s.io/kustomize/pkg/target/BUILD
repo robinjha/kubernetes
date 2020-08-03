@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    srcs = ["kusttarget.go"],
+    srcs = [
+        "kusttarget.go",
+        "resaccumulator.go",
+    ],
     importmap = "k8s.io/kubernetes/vendor/sigs.k8s.io/kustomize/pkg/target",
     importpath = "sigs.k8s.io/kustomize/pkg/target",
     visibility = ["//visibility:public"],
@@ -10,7 +13,6 @@ go_library(
         "//vendor/github.com/ghodss/yaml:go_default_library",
         "//vendor/github.com/pkg/errors:go_default_library",
         "//vendor/sigs.k8s.io/kustomize/pkg/constants:go_default_library",
-        "//vendor/sigs.k8s.io/kustomize/pkg/fs:go_default_library",
         "//vendor/sigs.k8s.io/kustomize/pkg/ifc:go_default_library",
         "//vendor/sigs.k8s.io/kustomize/pkg/ifc/transformer:go_default_library",
         "//vendor/sigs.k8s.io/kustomize/pkg/internal/error:go_default_library",

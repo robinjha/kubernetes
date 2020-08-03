@@ -33,7 +33,7 @@ type netlinkHandle struct {
 	isIPv6 bool
 }
 
-// NewNetLinkHandle will crate a new NetLinkHandle
+// NewNetLinkHandle will create a new NetLinkHandle
 func NewNetLinkHandle(isIPv6 bool) NetLinkHandle {
 	return &netlinkHandle{netlink.Handle{}, isIPv6}
 }
@@ -135,7 +135,7 @@ func (h *netlinkHandle) ListBindAddress(devName string) ([]string, error) {
 // 172.17.0.1 dev docker0  scope host  src 172.17.0.1
 // 192.168.122.1 dev virbr0  scope host  src 192.168.122.1
 // Then cut the unique src IP fields,
-// --> result set: [10.0.0.1, 10.0.0.10, 10.0.0.252, 100.106.89.164, 127.0.0.1, 192.168.122.1]
+// --> result set: [10.0.0.1, 10.0.0.10, 10.0.0.252, 100.106.89.164, 127.0.0.1, 172.17.0.1, 192.168.122.1]
 
 // If dev is specified, it's equivalent to exec:
 // $ ip route show table local type local proto kernel dev kube-ipvs0
